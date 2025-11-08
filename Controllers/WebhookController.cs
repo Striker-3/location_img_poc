@@ -19,15 +19,23 @@ namespace location_img_poc.Controllers
 
         // ✅ Step 1: Webhook Verification
         [HttpGet]
-        public IActionResult Verify(
-            [FromQuery] string hub_mode,
-            [FromQuery] string hub_challenge,
-            [FromQuery] string hub_verify_token)
-        {
-            if (hub_mode == "subscribe" && hub_verify_token == VERIFY_TOKEN)
-                return Ok(hub_challenge);
-            return Forbid();
-        }
+public IActionResult Verify(
+    [FromQuery(Name = "hub.mode")] string? mode,
+    [FromQuery(Name = "hub.challenge")] string? challenge,
+    [FromQuery(Name = "hub.verify_token")] string? token)
+{
+    Console.WriteLine($"👉 Webhook verification request: mode={mode}, token={token}, challenge={challenge}");
+
+    if (mode == "subscribe" && token == VERIFY_TOKEN)
+    {
+        Console.WriteLine("✅ Webhook verified successfully.");
+        return Ok(challenge);
+    }
+
+    Console.WriteLine("❌ Webhook verification failed.");
+    return Forbid();
+}
+
 
         // ✅ Step 2: Handle Incoming Messages
         [HttpPost]
